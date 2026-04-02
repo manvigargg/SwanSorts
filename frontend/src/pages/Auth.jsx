@@ -56,7 +56,7 @@ export default function Auth() {
           <h1 style={{ fontFamily: 'var(--head)', fontSize: 28, fontWeight: 800, color: 'var(--lime)', letterSpacing: '-0.5px' }}>
             SwanSorts
           </h1>
-          <p style={{ fontSize: 13, color: 'var(--mist)', marginTop: 4 }}>AI Waste Intelligence</p>
+          <p style={{ fontSize: 13, color: 'var(--mist)', marginTop: 4 }}>sorting today for tomorrow</p>
         </div>
 
         {/* Tab toggle */}
@@ -101,7 +101,7 @@ export default function Auth() {
                 >
                   <div>
                     <label style={{ fontSize: 11, color: 'var(--mist)', letterSpacing: '1px', display: 'block', marginBottom: 6 }}>FULL NAME</label>
-                    <input style={inputStyle} type="text" placeholder="Manvi Garg" value={form.name}
+                    <input style={inputStyle} type="text" placeholder="Your Name" value={form.name}
                       onChange={e => set('name', e.target.value)} required
                       onFocus={e => e.target.style.borderColor = 'rgba(168,224,99,0.5)'}
                       onBlur={e => e.target.style.borderColor = 'rgba(168,224,99,0.18)'} />
@@ -116,7 +116,7 @@ export default function Auth() {
                     </div>
                     <div>
                       <label style={{ fontSize: 11, color: 'var(--mist)', letterSpacing: '1px', display: 'block', marginBottom: 6 }}>CITY</label>
-                      <input style={inputStyle} type="text" placeholder="Indore" value={form.city}
+                      <input style={inputStyle} type="text" placeholder="Your City" value={form.city}
                         onChange={e => set('city', e.target.value)}
                         onFocus={e => e.target.style.borderColor = 'rgba(168,224,99,0.5)'}
                         onBlur={e => e.target.style.borderColor = 'rgba(168,224,99,0.18)'} />

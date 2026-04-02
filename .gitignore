@@ -1,0 +1,10 @@
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+backend/__pycache__/
+backend/*.pyc
+frontend/src/lib/supabase.js
+backend/venv/
+backend/models/best_model.pt
+.DS_Store
+Thumbs.db

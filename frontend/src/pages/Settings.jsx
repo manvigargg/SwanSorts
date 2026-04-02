@@ -133,9 +133,9 @@ export default function Settings() {
           <div style={{ fontSize: 10, letterSpacing: '2px', color: 'var(--mist)', marginBottom: 18, fontWeight: 500 }}>PERSONAL DETAILS</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             {[
-              { key: 'name',  label: 'FULL NAME', type: 'text',  placeholder: 'Manvi Garg' },
+              { key: 'name',  label: 'FULL NAME', type: 'text',  placeholder: 'Your Name' },
               { key: 'phone', label: 'PHONE',     type: 'tel',   placeholder: '+91 99999 00000' },
-              { key: 'city',  label: 'CITY',      type: 'text',  placeholder: 'Indore' },
+              { key: 'city',  label: 'CITY',      type: 'text',  placeholder: 'Your City' },
             ].map(({ key, label, type, placeholder }) => (
               <div key={key}>
                 <label style={{ fontSize: 10, color: 'var(--mist)', letterSpacing: '1.5px', display: 'block', marginBottom: 6 }}>{label}</label>
