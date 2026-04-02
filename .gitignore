@@ -1,10 +1,20 @@
+# ── FRONTEND ─────────────────────────
 frontend/node_modules/
 frontend/dist/
 frontend/.env
+
+# ── BACKEND ──────────────────────────
+backend/.env
+backend/venv/
 backend/__pycache__/
 backend/*.pyc
-frontend/src/lib/supabase.js
-backend/venv/
-backend/models/best_model.pt
+
+# ── MODELS / LARGE FILES ─────────────
+backend/models/*.pt
+
+# ── SYSTEM FILES ─────────────────────
 .DS_Store
 Thumbs.db
+
+# ── ROOT ENV (optional but recommended)
+.env
