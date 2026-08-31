@@ -1,0 +1,30 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
+
+:root {
+  --ink:    #080f08;
+  --forest: #0d1f0f;
+  --moss:   #1a3320;
+  --leaf:   #2d5a35;
+  --lime:   #a8e063;
+  --acid:   #c6f135;
+  --cream:  #f0ede4;
+  --mist:   rgba(240,237,228,0.52);
+  --ghost:  rgba(240,237,228,0.15);
+  --border: rgba(168,224,99,0.13);
+  --head:   'Space Grotesk', system-ui, sans-serif;
+  --body:   'DM Sans', system-ui, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+html, body, #root { width: 100%; min-height: 100%; background: var(--ink); color: var(--cream); font-family: var(--body); -webkit-font-smoothing: antialiased; }
+body { overflow-x: hidden; }
+h1,h2,h3,h4,h5,h6 { font-family: var(--head); font-weight: 700; letter-spacing: -0.5px; }
+::selection { background: var(--acid); color: var(--ink); }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--leaf); border-radius: 2px; }
+input, textarea, select { font-family: var(--body); outline: none; }
+button { cursor: pointer; font-family: var(--head); }
+a { color: inherit; text-decoration: none; }
+body::after { content:''; position:fixed; inset:0; z-index:9999; pointer-events:none; opacity:0.022; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); background-size:180px 180px; }
