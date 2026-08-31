@@ -17,7 +17,6 @@ export const signUp = async ({ email, password, name, phone, city }) => {
   })
   if (error) throw error
 
-  // Insert profile row
   if (data.user) {
     await supabase.from('profiles').upsert({
       id:         data.user.id,
