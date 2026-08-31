@@ -8,4 +8,4 @@ export const CLASS_META = {
   trash:     { label: 'Trash',      category: 'Non-Recyclable', disposal: 'General Waste Bin',  co2: 0.0,  icon: '🗑️', accent: '#888' },
 }
 
-export const API_BASE = '/api'
+export const API_BASE = 'https://swansorts-api.onrender.com'
