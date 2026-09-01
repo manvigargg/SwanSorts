@@ -15,7 +15,7 @@ export default function usePredict() {
     formData.append('file', imageBlob, 'scan.jpg')
 
     try {
-      const res = await fetch(`${API_BASE}/predict`, {
+      const res = await fetch(`https://swansorts.onrender.com/predict`, {
         method: 'POST',
         body: formData,
       })
