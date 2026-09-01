@@ -4,3 +4,4 @@ python-multipart==0.0.9
 ultralytics>=8.0.0
 Pillow>=10.0.0
 pandas>=2.0.0
+gdown
