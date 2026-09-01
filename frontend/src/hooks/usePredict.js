@@ -1,5 +1,4 @@
 import { useState, useCallback } from 'react'
-import { API_BASE } from '../utils/constants'
 
 export default function usePredict() {
   const [result,  setResult]  = useState(null)
@@ -15,7 +14,7 @@ export default function usePredict() {
     formData.append('file', imageBlob, 'scan.jpg')
 
     try {
-      const res = await fetch(`https://swansorts.onrender.com/predict`, {
+      const res = await fetch('https://swansorts.onrender.com/predict', {
         method: 'POST',
         body: formData,
       })
