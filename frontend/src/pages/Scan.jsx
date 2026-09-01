@@ -264,7 +264,7 @@ export default function Scan() {
 
             {error && (
               <div style={{ marginBottom: 14, padding: '11px 14px', borderRadius: 10, background: 'rgba(255,80,80,0.07)', border: '1px solid rgba(255,80,80,0.22)', color: '#ff9090', fontSize: 13 }}>
-                ⚠ {error} — is your backend running on port 8000?
+                ⚠ {error} — the backend is unavailable right now.
               </div>
             )}
             {saving && <div style={{ fontSize: 12, color: 'var(--lime)', marginBottom: 10 }}>Saving to your dashboard…</div>}

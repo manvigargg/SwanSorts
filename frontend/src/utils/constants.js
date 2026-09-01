@@ -8,4 +8,4 @@ export const CLASS_META = {
   trash:     { label: 'Trash',      category: 'Non-Recyclable', disposal: 'General Waste Bin',  co2: 0.0,  icon: '🗑️', accent: '#888' },
 }
 
-export const API_BASE = 'https://swansorts.onrender.com'
+export const API_BASE = (import.meta.env.VITE_API_URL || 'https://swansorts.onrender.com').replace(/\/$/, '')
