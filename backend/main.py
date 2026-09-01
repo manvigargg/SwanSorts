@@ -34,9 +34,9 @@ IMG_SIZE    = 640    # YOLOv8 input size used during training
 if not os.path.exists(MODEL_PATH):
     os.makedirs("models", exist_ok=True)
     gdown.download(
-        "https://drive.google.com/file/d/1PVMm_XCOw8YF9inBzdGCiJYNDA5Y4ZIV/view?usp=sharing",
-        MODEL_PATH, quiet=False
-    )
+    "https://drive.google.com/uc?id=1PVMm_XCOw8YF9inBzdGCiJYNDA5Y4ZIV",
+    MODEL_PATH, quiet=False
+)
 # ── CLASS DEFINITIONS ─────────────────────────────────────────────────────────
 #
 # From your dataset.yaml:
