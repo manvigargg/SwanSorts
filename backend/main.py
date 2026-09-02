@@ -18,10 +18,10 @@ from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from PIL import Image
-import io
 import time
 import logging
-import os, gdown
+import os
+import torch
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("swansorts")
@@ -29,9 +29,12 @@ logger = logging.getLogger("swansorts")
 # ── CONFIG ────────────────────────────────────────────────────────────────────
 MODEL_PATH  = "models/best_model.pt"
 CONF_THRESH = 0.25   # minimum confidence — matches your notebook
-IMG_SIZE    = 640    # YOLOv8 input size used during training
+IMG_SIZE    = 512    # bounded inference size for the Render memory limit
+MAX_IMAGE_DIM = 1280  # avoid decoding unnecessarily large uploads at full size
 
 if not os.path.exists(MODEL_PATH):
+    import gdown
+
     os.makedirs("models", exist_ok=True)
     gdown.download(
     "https://drive.google.com/uc?id=1PVMm_XCOw8YF9inBzdGCiJYNDA5Y4ZIV",
@@ -153,38 +156,79 @@ app.add_middleware(
 )
 
 # ── INFERENCE ─────────────────────────────────────────────────────────────────
-def run_detection(img: Image.Image) -> dict:
+def prepare_image(upload) -> tuple[Image.Image, tuple[int, int], tuple[int, int]]:
+    """Decode and bound an upload while retaining dimensions for bbox scaling."""
+    with Image.open(upload) as source:
+        original_size = source.size
+        image = source.convert("RGB")
+
+    image.thumbnail((MAX_IMAGE_DIM, MAX_IMAGE_DIM), Image.Resampling.LANCZOS)
+    return image, original_size, image.size
+
+
+def run_detection(
+    img: Image.Image,
+    original_size: tuple[int, int],
+    resized_size: tuple[int, int],
+) -> dict:
     if model is None:
         return _demo_response()
 
-    results = model.predict(img, conf=CONF_THRESH, imgsz=IMG_SIZE, verbose=False)
-
     detections = []
     summary    = {}
+    scale_x = original_size[0] / resized_size[0]
+    scale_y = original_size[1] / resized_size[1]
 
-    for r in results:
-        for box in r.boxes:
-            cls_id   = int(box.cls[0])
-            conf     = round(float(box.conf[0]), 4)
-            cls_name = CLASS_NAMES[cls_id] if cls_id < len(CLASS_NAMES) else "unknown"
-            meta     = CLASS_META.get(cls_name, {})
-            x1, y1, x2, y2 = [round(float(v), 1) for v in box.xyxy[0]]
+    inference_started = time.time()
+    logger.info("YOLO inference started")
+    results = None
+    try:
+        with torch.inference_mode():
+            results = model.predict(
+                img,
+                conf=CONF_THRESH,
+                imgsz=IMG_SIZE,
+                device="cpu",
+                save=False,
+                save_txt=False,
+                save_conf=False,
+                verbose=False,
+            )
 
-            detections.append({
-                "class":          cls_name,
-                "material":       meta.get("material", cls_name.title()),
-                "waste_category": meta.get("waste_category", "Unknown"),
-                "disposal":       meta.get("disposal", "General Waste"),
-                "confidence":     conf,
-                "confidence_pct": f"{round(conf * 100, 1)}%",
-                "co2_saved_kg":   meta.get("co2_per_item", 0.0),
-                "icon":           meta.get("icon", "♻️"),
-                "color":          meta.get("color", "#888"),
-                "tip":            meta.get("tip", ""),
-                "bbox":           {"x1": x1, "y1": y1, "x2": x2, "y2": y2},
-            })
+        for r in results:
+            for box in r.boxes:
+                cls_id   = int(box.cls[0])
+                conf     = round(float(box.conf[0]), 4)
+                cls_name = CLASS_NAMES[cls_id] if cls_id < len(CLASS_NAMES) else "unknown"
+                meta     = CLASS_META.get(cls_name, {})
+                x1, y1, x2, y2 = [
+                    round(float(v) * scale, 1)
+                    for v, scale in zip(box.xyxy[0], (scale_x, scale_y, scale_x, scale_y))
+                ]
 
-            summary[cls_name] = summary.get(cls_name, 0) + 1
+                detections.append({
+                    "class":          cls_name,
+                    "material":       meta.get("material", cls_name.title()),
+                    "waste_category": meta.get("waste_category", "Unknown"),
+                    "disposal":        meta.get("disposal", "General Waste"),
+                    "confidence":      conf,
+                    "confidence_pct": f"{round(conf * 100, 1)}%",
+                    "co2_saved_kg":   meta.get("co2_per_item", 0.0),
+                    "icon":            meta.get("icon", "♻️"),
+                    "color":           meta.get("color", "#888"),
+                    "tip":             meta.get("tip", ""),
+                    "bbox":           {"x1": x1, "y1": y1, "x2": x2, "y2": y2},
+                })
+
+                summary[cls_name] = summary.get(cls_name, 0) + 1
+    finally:
+        del results
+
+    logger.info(
+        "YOLO inference completed in %.1fms with %d detections",
+        (time.time() - inference_started) * 1000,
+        len(detections),
+    )
 
     detections.sort(key=lambda d: d["confidence"], reverse=True)
     total_co2 = round(sum(d["co2_saved_kg"] for d in detections), 3)
@@ -248,26 +292,33 @@ def get_classes():
 
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
-    if not file.content_type.startswith("image/"):
+    if not file.content_type or not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="File must be an image.")
 
-    start    = time.time()
-    contents = await file.read()
-
+    start = time.time()
+    img = None
     try:
-        img = Image.open(io.BytesIO(contents)).convert("RGB")
+        img, original_size, resized_size = prepare_image(file.file)
+        logger.info(
+            "Received image dimensions=%sx%s resized_dimensions=%sx%s",
+            original_size[0], original_size[1], resized_size[0], resized_size[1],
+        )
     except Exception:
         raise HTTPException(status_code=400, detail="Could not read image.")
 
-    result                = run_detection(img)
-    result["inference_ms"] = round((time.time() - start) * 1000, 1)
-    result["filename"]     = file.filename
+    try:
+        result = run_detection(img, original_size, resized_size)
+        result["inference_ms"] = round((time.time() - start) * 1000, 1)
+        result["filename"]     = file.filename
 
-    logger.info(
-        f"Detected {result['total_detected']} objects in {result['inference_ms']}ms | "
-        f"{result['summary']} | CO2: {result['total_co2_saved']}kg"
-    )
-    return JSONResponse(content=result)
+        logger.info(
+            "Prediction complete: %d detections in %.1fms",
+            result["total_detected"], result["inference_ms"],
+        )
+        return JSONResponse(content=result)
+    finally:
+        img.close()
+        await file.close()
 
 
 if __name__ == "__main__":
