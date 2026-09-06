@@ -8,7 +8,6 @@ The application combines a custom-trained YOLOv8 object detection model with a F
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-000000?style=flat-square&logo=vercel)](https://swan-sorts.vercel.app)
 [![Backend](https://img.shields.io/badge/API-Render-00e87a?style=flat-square)](https://swansorts.onrender.com)
-[![Frontend](https://img.shields.io/badge/Frontend-React-61DAFB?style=flat-square&logo=react)](https://react.dev)
 [![License: MIT](https://img.shields.io/badge/License-MIT-amber?style=flat-square)](LICENSE)
 
 ---
